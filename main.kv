@@ -1,0 +1,214 @@
+WindowManager:
+    MainWindow:
+    HistoryWindow:
+    CameraWindow:
+    FileWindow:
+    FirstView:
+        id: first_view_img
+    SecondView:
+        id: second_view_img
+
+
+<MainWindow>:
+    name: "main"
+    Screen:
+        NavigationLayout:
+            ScreenManager:
+                Screen:
+                    BoxLayout:
+                        orientation: 'vertical'
+                        MDToolbar:
+                            title: "camPDF"
+                            anchor_title: "center"
+                            elevation: 10
+                            left_action_items: [['menu', lambda x: nav_drawer.set_state("open")]]
+                            right_action_items: [['clock', lambda x: app.open_history()]]
+                        FloatLayout:
+                            BoxLayout:
+                                orientation: 'vertical'
+                                size_hint: None, None
+                                size: self.minimum_width, self.minimum_height
+                                pos_hint: {'center_x': .5, 'center_y': .5}
+                                spacing: '10dp'
+                                MDRoundFlatIconButton:
+                                    icon: 'camera'
+                                    text: "From Camera"
+                                    theme_text_color: "Custom"
+                                    text_color: 30/255,146/255,247/255,1
+                                    on_release:
+                                        app.root.current = "camera"
+                                        app.root.transition.direction = "left"
+                                MDRoundFlatIconButton:
+                                    icon: 'file'
+                                    text: "From Files"
+                                    theme_text_color: "Custom"
+                                    text_color: 30/255,146/255,247/255,1
+                                    on_release:
+                                        app.root.current = "file_window"
+                                        app.root.transition.direction = "left"
+            MDNavigationDrawer:
+                id: nav_drawer
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: '5dp'
+                    padding: '5dp'
+                    Image:
+                        source: "./Images/developer.png"
+                    MDLabel:
+                        text: "Developers"
+                        font_style: "H4"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                    MDLabel:
+                        text: "    Niranjan Pandit"
+                        font_style: "H5"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                    MDLabel:
+                        text: "    Shyam Kumar"
+                        font_style: "H5"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                    Widget:
+
+
+<HistoryWindow>:
+    name: "history"
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: (0,0,0,1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        orientation: "vertical"
+        MDToolbar:
+            title: "History"
+            anchor_title: "center"
+            elevation: 10
+            left_action_items: [['keyboard-backspace', lambda x: app.back_to_menu()]]
+        FileChooserListView:
+            id: history_record
+            path: "/project/camPDF/History"
+
+
+<CameraWindow>:
+    name: "camera"
+    BoxLayout:
+        id: "camera_field"
+        orientation: "vertical"
+        Camera:
+            id: camera_view
+            resolution: (self.parent.width, self.parent.height)
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: self.minimum_height
+            FloatLayout:
+                size_hint_y: None
+                MDIconButton:
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                    icon: 'keyboard-backspace'
+                    on_release:
+                        app.back_to_menu()
+            FloatLayout:
+                MDIconButton:
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                    icon: 'camera-iris'
+                    on_release:
+                        root.shutter()
+                        app.root.current = "first_view"
+                        app.root.transition.direction = "left"
+                        app.root.setimg(None)
+            FloatLayout:
+                size_hint_y: None
+
+
+<FileWindow>:
+    name: "file_window"
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: (0,0,0,1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        MDToolbar:
+            title: "File"
+            elevation: 10
+            left_action_items: [['keyboard-backspace', lambda x: app.back_to_menu()]]
+        FileChooserIconView:
+            id: file_chooser
+            on_selection:
+                app.root.current = "first_view"
+                app.root.transition.direction = "left"
+                app.root.setimg(file_chooser.selection[0])
+
+
+<FirstView>:
+    name: "first_view"
+    BoxLayout:
+        orientation: "vertical"
+        MDToolbar:
+            id: image_viwer
+            elevation: 10
+            left_action_items: [['keyboard-backspace', lambda x: app.back_to_menu()]]
+        Image:
+            id: image_view
+        MDRectangleFlatIconButton:
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            icon: "camera-image"
+            text: "Extract Image"
+            theme_text_color: "Custom"
+            text_color: 0, 0, 1, 1
+            on_release:
+                app.root.extractimg()
+
+
+<SecondView>:
+    name: "second_view"
+    FloatLayout:
+        BoxLayout:
+            orientation: "vertical"
+            MDToolbar:
+                title: "Extracted Image"
+                left_action_items: [['keyboard-backspace', lambda x: app.privious()]]
+                right_action_items: [['content-save', lambda x: root.saving_option()]]
+            Image:
+                id: extracted_img
+        BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: (1,1,1,1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            id: optionbox
+            orientation: "vertical"
+            size_hint: (None, None)
+            height:self.minimum_height
+            width:self.minimum_width
+            top: -self.height
+            MDRectangleFlatIconButton:
+                icon: 'close'
+                text: 'Close'
+                theme_text_color: 'Custom'
+                text_color: 0,0,1,1
+                on_release:root.close(False)
+            MDRectangleFlatIconButton:
+                icon: 'plus'
+                text: 'Add'
+                theme_text_color: 'Custom'
+                text_color: 0,0,1,1
+                on_release:app.add_dir()
+
+
+<Content>
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "40dp"
+    MDTextField:
+        id: dir_name
+        hint_text: "Name"
